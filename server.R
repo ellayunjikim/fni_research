@@ -9,23 +9,62 @@ authorData <- rjson::fromJSON(file = "testdata/comprehensive_nodes.json")
 ## Begin app server
 #############################################################################
 server <- function(input, output,session) {
-  
+  # renv::init()
   # --- conda env set up (DO NOT EDIT) --- # 
   # 
   # # create a new environment 
-   #reticulate::conda_create("download_test_0714_conda")
+ # reticulate::conda_create("download_test_0714_conda")
   
   # install pip
-  #reticulate::conda_install("download_test_0714_conda", "pandas")
+  # reticulate::conda_install("download_test_0714_conda", "pandas")
+  # py_install("pandas")
   
   # # indicate that we want to use a specific condaenv
-  reticulate::use_condaenv('download_test_0714_conda', required = TRUE)
+  # reticulate::use_condaenv('download_test_0714_conda', required = TRUE)
 
   ## SERVER LOGIC 
   #################################################################
-  #
-  # reticulate::source_python('0728_wrapper.py')
+  # inside the project directory
+  # renv::init()
   
+  # record the current dependencies in a file called renv.lock
+  # renv::snapshot()
+  
+  # commit the lockfile alongside your code in version control
+  # and use this function to view the history of your lockfile
+  # renv::history()
+  
+  # if an upgrade goes astray, revert the lockfile
+  # renv::revert(commit = "abc123")
+  
+  # and restore the previous environment
+  # renv::restore()
+  # reticulate::source_python('0728_wrapper.py')
+  # py_install("spacy", pip = TRUE)
+  # py_install("yake", pip = TRUE)
+  # py_install("keyphrase_vectorizers", pip = TRUE)
+  # py_install("keybert", pip = TRUE)
+  # py_install("pandas", pip = TRUE)
+  # py_install("scholarly", pip = TRUE)
+  # py_install("pytextrank", pip = TRUE)
+  # py_install("numpy", pip = TRUE)
+  # py_install('pybliometrics', pip= TRUE)
+  # py_install('gensim', pip= TRUE)
+  # 
+  # py_run_string('import glob')
+  # py_run_string('import string')
+  # py_run_string('import nltk')
+  # py_run_string('from nltk import corpus')
+  # py_run_string('from nltk import FreqDist')
+  # py_run_string('from nltk.tokenize import word_tokenize')
+  # py_run_string('from preprocess import preprocess')
+  # #
+  # py_run_string('from tqdm import tqdm')
+  # py_run_string('import json')
+  # py_run_string('import requests')
+  # py_run_string('import logging')
+  # #
+  # 
   reticulate::source_python('1003_wrapper.py')
   
   #processbibtex <- reactive(process_bibtex(input$upload$datapath))
@@ -91,14 +130,20 @@ server <- function(input, output,session) {
                                              u = input$dynamicfilter,
                                              c = TRUE))
   })
-  
+  # 
+  # array_of_kws <-  eventReactive(input$createkw, {
+  #   kw_json()$nodes%>%spread_all%>%select(keywords)
+  # }) #sample file ver.
+  # 
   # array_kw <- list()
   observeEvent(input$createkw,{
-   # Values$array_of_kws <-  kw_json()$nodes%>%spread_all%>%select(keywords)
-     array_of_kws <-  kw_json()$nodes%>%spread_all%>%select(keywords) #sample file ver.
+    outVar = reactive({
+      mydata = (kw_json()$nodes%>%spread_all%>%select(keywords))$keywords
+      names(mydata)
+    })
     updateSelectInput(session, "dynamicfilter", 
                       label = "Below are the keywords of your network: ",
-                      choices = array_of_kws$keywords, # how to write  
+                      choices = outVar(), #array_of_kws$keywords, # how to write  
                       selected = NULL)
   })
   
@@ -109,9 +154,14 @@ server <- function(input, output,session) {
     Values$kwdata <- data.frame(input$made_array)
     # print(Values$kwdata)
     # output$futureData <- renderTable({ Values$kwdata })
+    
+    outVar = reactive({
+      mydata = (kw_json()$nodes%>%spread_all%>%select(keywords))$keywords
+      names(mydata)
+    })
     updateSelectInput(session, "dynamicfilter", 
                       label = "Below are the keywords of your network: ",
-                      choices = array_of_kws$keywords, 
+                      choices = outVar(), #$keywords, 
                       selected = input$made_array)
   })
   

@@ -1,1 +1,0 @@
-# fni_research
